@@ -33,7 +33,7 @@ uv pip install -e .
 Here, we fix vLLM version to [v0.11.0](https://github.com/vllm-project/vllm/releases/tag/v0.11.0). After building vLLM, set `PYTHONPATH` to enable vLLM local built module selection.
 For example, set the environment variable under the repository path:
 ```bash
-export PYTHONPATH="$pwd/vllm:$PYTHONPATH"
+export PYTHONPATH="$(pwd)/vllm:$PYTHONPATH"
 ``` 
 
 ### Dataset
