@@ -30,6 +30,12 @@ cd vllm
 uv pip install -e .
 ```
 
+Here, we fix vLLM version to [v0.11.0](https://github.com/vllm-project/vllm/releases/tag/v0.11.0). After building vLLM, set `PYTHONPATH` to enable vLLM local built module selection.
+For example, set the environment variable under the repository path:
+```bash
+export PYTHONPATH="$pwd/vllm:$PYTHONPATH"
+``` 
+
 ### Dataset
 
 Dataset used in the ModServe paper is the ShareGPT-4o dataset, which includes 50K images of varying resolutions and text prompts from GPT-4o.
