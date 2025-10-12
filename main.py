@@ -8,15 +8,15 @@ if path_var:
 else:
     os.environ['HF_HUB_CACHE'] = "scratch/hf_hub"
 
-# ds = load_dataset("OpenGVLab/ShareGPT-4o", "image_caption")
+ds = load_dataset("OpenGVLab/ShareGPT-4o", "image_caption")
 
-# models = {
-#     "llama11": "meta-llama/Llama-3.2-11B-Vision",
-#     "llama90": "meta-llama/Llama-3.2-90B-Vision",
-#     "llava7": "lmms-lab/llava-onevision-qwen2-7b-ov",
-#     "llava72": "llava-hf/llava-onevision-qwen2-72b-ov-hf",
-#     "intern": "OpenGVLab/InternVL2_5-26B",
-#     "nvlm": "nvidia/NVLM-D-72B"
-# }
+models = {
+    "llama11": "meta-llama/Llama-3.2-11B-Vision",
+    "llama90": "meta-llama/Llama-3.2-90B-Vision",
+    "llava7": "lmms-lab/llava-onevision-qwen2-7b-ov",
+    "llava72": "llava-hf/llava-onevision-qwen2-72b-ov-hf",
+    "intern": "OpenGVLab/InternVL2_5-26B",
+    "nvlm": "nvidia/NVLM-D-72B"
+}
 
-# llm = LLM(model=models[0])
+llm = LLM(model=models[0])

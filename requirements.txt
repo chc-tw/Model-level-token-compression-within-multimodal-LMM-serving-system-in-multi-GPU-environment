@@ -149,7 +149,7 @@ urllib3==2.5.0
 uv==0.8.24
 uvicorn==0.37.0
 uvloop==0.21.0
--e git+ssh://git@github.com/minlu21/vllm.git@1b86bd8e183138236415cc798f1beb3357e4f5eb#egg=vllm&subdirectory=../../vllm
+-e ./vllm
 watchfiles==1.1.0
 websockets==15.0.1
 xformers==0.0.32.post1
