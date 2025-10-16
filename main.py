@@ -11,6 +11,7 @@ else:
 ds = load_dataset("OpenGVLab/ShareGPT-4o", "image_caption")
 
 models = {
+    "qwenvl": "Qwen/Qwen2.5-VL-7B-Instruct",
     "llama11": "meta-llama/Llama-3.2-11B-Vision",
     "llama90": "meta-llama/Llama-3.2-90B-Vision",
     "llava7": "lmms-lab/llava-onevision-qwen2-7b-ov",
@@ -19,4 +20,15 @@ models = {
     "nvlm": "nvidia/NVLM-D-72B"
 }
 
-llm = LLM(model=models[0])
+def main():
+    llm = LLM(
+        model=models["qwenvl"],
+        trust_remote_code=True,
+        max_model_len=2048
+    )
+    prompt = "Testing from Georgia Tech"
+    outputs = llm.generate(prompt)
+    print(outputs)
+
+if __name__ == "__main__":
+    main()
