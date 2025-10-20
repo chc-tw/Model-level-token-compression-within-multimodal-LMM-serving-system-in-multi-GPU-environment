@@ -1,0 +1,15 @@
+[project]
+name = "research3"
+version = "0.1.0"
+description = "Research3"
+requires-python = "==3.12.5"
+
+dependencies = [
+    "datasets>=4.2.0",
+    "vllm",
+    "genai-bench"
+]
+
+[tool.uv.sources]
+vllm = { path = "vllm", editable = true }
+genai-bench = { path = "genai-bench", editable = true }
