@@ -1,3 +1,6 @@
 [submodule "vllm"]
 	path = vllm
 	url = git@github.com:minlu21/vllm.git
+[submodule "genai-bench"]
+	path = genai-bench
+	url = git@github.com:chc-tw/genai-bench.git
