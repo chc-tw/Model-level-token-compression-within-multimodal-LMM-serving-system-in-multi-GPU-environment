@@ -6,10 +6,10 @@ requires-python = "==3.12.5"
 
 dependencies = [
     "datasets>=4.2.0",
+    "matplotlib>=3.10.7",
+    "seaborn>=0.13.2",
     "vllm",
-    "genai-bench"
 ]
 
 [tool.uv.sources]
 vllm = { path = "vllm", editable = true }
-genai-bench = { path = "genai-bench", editable = true }

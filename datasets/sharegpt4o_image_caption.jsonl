@@ -1,0 +1,11 @@
+{
+  "source": {
+    "type": "huggingface",
+    "path": "chc-tw/ShareGPT-4o",
+    "huggingface_kwargs": {
+      "name": "default"
+    }
+  },
+  "prompt_column": "conversations",
+  "image_column": "image"
+}
