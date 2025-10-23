@@ -96,3 +96,19 @@ Next, run the benchmark:
 ```bash
 ./run_benchmark.sh
 ```
+
+### Dataset
+The ShareGPT-4o dataset is available on Hugging Face. The repo name is "chc-tw/ShareGPT-4o".
+To use this dataset in python, you can run:
+```python
+from datasets import load_dataset
+ds = load_dataset("chc-tw/ShareGPT-4o", "default")
+```
+The dataset is a DatasetDict object, you can access the train split by:
+```python
+train_ds = ds["train"]
+```
+The dataset is a Dataset object, you can access the first example by:
+```python
+print(train_ds[0])
+```
