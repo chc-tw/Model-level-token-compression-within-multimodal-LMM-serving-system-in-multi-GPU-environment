@@ -8,13 +8,23 @@
 source smr/bin/activate
 ```
 
-Packages are being installed using uv. Commands are of the form 
+To better manage the dependencies, we use uv with pyproject.toml to install the dependencies.
 
+To sync the dependencies, run:
 ```bash
-uv pip install <package-name>
+uv sync
+```
+To add a new dependency, run:
+```bash
+uv add <package-name>
+```
+To remove a dependency, run:
+```bash
+uv remove <package-name>
 ```
 
 ### vLLM
+> To install vLLM, we need to set environment variable MAX_JOBS=2 to avoid OOM.
 
 If modifying only the Python code, build and install vLLM without compilation:
 
@@ -36,6 +46,7 @@ For example, set the environment variable under the repository path:
 export PYTHONPATH="$(pwd)/vllm:$PYTHONPATH"
 ``` 
 
+
 ### Dataset
 
 Dataset used in the ModServe paper is the ShareGPT-4o dataset, which includes 50K images of varying resolutions and text prompts from GPT-4o.
@@ -53,3 +64,51 @@ Models used in the ModServe paper are:
 - LLaVA-OneVision 72B
 - InternVL-2.5 26B
 - NVLM-D 72B
+
+## Run the benchmarks
+We first need to ask for gpu machine
+```bash
+srun --gres=gpu:H100:1 --cpus-per-task=8 --time=9:00:00 -N 1 --pty /bin/bash
+```
+Next, because the vLLM server is on gpu node, we need to know the hostname of the server. Run this command to get the hostname:
+```bash
+hostname
+```
+and start the vLLM server
+```bash
+vllm serve Qwen/Qwen2.5-VL-7B-Instruct
+```
+Then, in another terminal, run:
+```bash
+ssh -N -f -L 8888:localhost:8000 gpu-hostname
+```
+
+Next, run the benchmark:
+>Note because the dependencies are conflicted between vLLM and genai-bench, we need to run the benchmark in the different virtual environment.
+>before running the benchmark, we need to create the genai-bench virtual environment:
+>```bash
+>cd genai-bench
+>uv venv --python 3.12.5
+>uv sync
+>
+>```
+> 
+```bash
+./run_benchmark.sh
+```
+
+### Dataset
+The ShareGPT-4o dataset is available on Hugging Face. The repo name is "chc-tw/ShareGPT-4o".
+To use this dataset in python, you can run:
+```python
+from datasets import load_dataset
+ds = load_dataset("chc-tw/ShareGPT-4o", "default")
+```
+The dataset is a DatasetDict object, you can access the train split by:
+```python
+train_ds = ds["train"]
+```
+The dataset is a Dataset object, you can access the first example by:
+```python
+print(train_ds[0])
+```
