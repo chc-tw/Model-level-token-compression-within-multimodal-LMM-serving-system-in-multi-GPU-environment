@@ -2,14 +2,6 @@
 
 ## Setup Instructions
 
-### GPU Node
-
-Obtain an H100 GPU for example as follows:
-
-```
-salloc --nodes=1 --gres=gpu:H100:1 --ntasks-per-node=8 --time=2:00:00
-```
-
 ### Virtual Environment
 
 To better manage the dependencies, we use uv with pyproject.toml to install the dependencies. First install `uv` with pip:
@@ -90,7 +82,40 @@ Models used in the ModServe paper are:
 - InternVL-2.5 26B
 - NVLM-D 72B
 
-## Run the benchmarks
+## Run Disaggregated Encoder VLLM Server
+
+### Install NIXL
+
+Install NIXL for the KV Connector:
+
+```bash
+uv pip install nixl
+```
+
+### GPU Node
+
+For the disaggregated encoder experiments, obtain at least 2 H100 GPUs for example as follows:
+
+```bash
+salloc --nodes=2 --gres=gpu:H100:2 --ntasks-per-node=2 --time=2:00:00
+```
+
+### Default Benchmark
+
+Run the default experiment as follows:
+
+```bash
+cd disaggregated_encoder
+bash disagg_1e1p1d_example.sh # uses Qwen-2.5 3B
+```
+
+To run the benchmark for other models, do the following:
+
+```bash
+MODEL="Qwen/Qwen2.5-VL-7B-Instruct" bash disagg_1e1p1d_example.sh
+```
+
+## Run the GenAI Benchmarks
 
 We first need to ask for gpu machine
 
