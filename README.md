@@ -139,7 +139,7 @@ vllm serve Qwen/Qwen2.5-VL-7B-Instruct
 Then, in another terminal, run:
 
 ```bash
-ssh -N -f -L 8888:localhost:8000 gpu-hostname
+ssh -N -f -L 8888:localhost:8000 $USER@<hostname>
 ```
 
 Next, run the benchmark:
@@ -153,6 +153,7 @@ Next, run the benchmark:
 >```
 > 
 ```bash
+source genai-bench/.venv/bin/activate
 ./run_benchmark.sh
 ```
 

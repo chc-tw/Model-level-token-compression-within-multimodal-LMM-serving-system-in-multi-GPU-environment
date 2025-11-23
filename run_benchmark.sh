@@ -43,14 +43,14 @@ genai-bench benchmark \
   --server-engine "vLLM" \
   --server-gpu-type "H100" \
   --server-gpu-count "$SERVER_GPU_COUNT" \
-  --num-concurrency 1 \
-  --num-concurrency 2 \
-  --num-concurrency 4 \
-  --num-concurrency 8 \
-  --num-concurrency 12 \
-  --num-concurrency 16 \
-  --num-concurrency 20 \
-  --num-concurrency 24 \
-  --num-concurrency 28 \
-  --num-concurrency 32 \
+  --poisson-arrival-rate 1 \
+  --poisson-arrival-rate 2 \
+  --poisson-arrival-rate 4 \
+  --poisson-arrival-rate 8 \
+  --poisson-arrival-rate 12 \
+  --poisson-arrival-rate 16 \
+  --poisson-arrival-rate 20 \
+  --poisson-arrival-rate 24 \
+  --poisson-arrival-rate 28 \
+  --poisson-arrival-rate 32 \
   --metrics-time-unit s \
