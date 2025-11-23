@@ -11,5 +11,8 @@ dependencies = [
     "vllm",
 ]
 
+[tool.uv.extra-build-dependencies]
+flash-attn = ["torch"]
+
 [tool.uv.sources]
 vllm = { path = "vllm", editable = true }
