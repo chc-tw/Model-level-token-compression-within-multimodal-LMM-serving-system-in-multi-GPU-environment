@@ -5,7 +5,7 @@ API_MODEL_NAME="Qwen/Qwen2.5-VL-7B-Instruct"
 MODEL_TOKENIZER="Qwen/Qwen2.5-VL-7B-Instruct"
 DATASET_CONFIG="datasets/sharegpt4o_image_caption.jsonl"
 SERVER_GPU_COUNT="1"
-SEED="-1"
+SEED="42"
 TRACE_FILE=""
 
 # Help function
