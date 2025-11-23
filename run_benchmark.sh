@@ -6,8 +6,9 @@ MODEL_TOKENIZER="${2:-Qwen/Qwen2.5-VL-3B-Instruct}"
 DATASET_CONFIG="${3:-datasets/sharegpt4o_image_caption.jsonl}"
 SERVER_GPU_COUNT="${4:-1}"
 
-if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
-  echo "Usage: $0 [API_MODEL_NAME] [MODEL_TOKENIZER] [DATASET_CONFIG] [SERVER_GPU_COUNT]"
+# Help function
+usage() {
+  echo "Usage: $0 [options]"
   echo ""
   echo "Parameters:"
   echo "  API_MODEL_NAME     - Model name for API (default: Qwen/Qwen2.5-VL-3B-Instruct)"
@@ -18,13 +19,53 @@ if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
   echo "Example:"
   echo "  $0 Qwen/Qwen2.5-VL-3B-Instruct Qwen/Qwen2.5-VL-3B-Instruct data/sharegpt4o_image_caption.jsonl 2"
   exit 0
-fi
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case $key in
+    --api-model-name)
+      API_MODEL_NAME="$2"
+      shift 2
+      ;;
+    --model-tokenizer)
+      MODEL_TOKENIZER="$2"
+      shift 2
+      ;;
+    --dataset-config)
+      DATASET_CONFIG="$2"
+      shift 2
+      ;;
+    --server-gpu-count)
+      SERVER_GPU_COUNT="$2"
+      shift 2
+      ;;
+    --seed)
+      SEED="$2"
+      shift 2
+      ;;
+    --trace-file)
+      TRACE_FILE="$2"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      ;;
+    *)
+      echo "Unknown option: $1"
+      usage
+      ;;
+  esac
+done
 
 echo "Running benchmark with:"
 echo "  API_MODEL_NAME: $API_MODEL_NAME"
 echo "  MODEL_TOKENIZER: $MODEL_TOKENIZER"
 echo "  DATASET_CONFIG: $DATASET_CONFIG"
 echo "  SERVER_GPU_COUNT: $SERVER_GPU_COUNT"
+echo "  SEED: $SEED"
+echo "  TRACE_FILE: $TRACE_FILE"
 echo ""
 
 source ./genai-bench/.venv/bin/activate
@@ -43,6 +84,8 @@ genai-bench benchmark \
   --server-engine "vLLM" \
   --server-gpu-type "H100" \
   --server-gpu-count "$SERVER_GPU_COUNT" \
+  --seed "$SEED" \
+  --trace-file "$TRACE_FILE" \
   --poisson-arrival-rate 1 \
   --poisson-arrival-rate 2 \
   --poisson-arrival-rate 3 \

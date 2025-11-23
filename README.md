@@ -25,7 +25,7 @@ export UV_CACHE_DIR=scratch/.cache
 To sync the dependencies, run:
 
 ```bash
-uv sync
+VLLM_USE_PRECOMPILED=1 uv sync
 ```
 
 To add a new dependency, run:
@@ -40,6 +40,7 @@ uv remove <package-name>
 ```
 
 ### vLLM
+>Note: you don't need to use this section. just do the above step. This section is for reference only.
 
 > To install vLLM, we need to set environment variable MAX_JOBS=2 to avoid OOM.
 
