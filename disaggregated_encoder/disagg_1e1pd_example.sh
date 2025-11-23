@@ -87,14 +87,13 @@ mkdir -p $EC_SHARED_STORAGE_PATH
 # Encoder worker
 ###############################################################################
 CUDA_VISIBLE_DEVICES="$GPU_E" vllm serve "$MODEL" \
-    --gpu-memory-utilization 0.01 \
+    --gpu-memory-utilization 0.7 \
     --port "$ENCODE_PORT" \
     --enforce-eager \
     --enable-request-id-headers \
     --no-enable-prefix-caching \
     --max-num-batched-tokens 114688 \
     --max-num-seqs 128 \
-    --allowed-local-media-path ${GIT_ROOT}/tests/v1/ec_connector/integration \
     --ec-transfer-config '{
         "ec_connector": "ECSharedStorageConnector",
         "ec_role": "ec_producer",
@@ -115,7 +114,6 @@ CUDA_VISIBLE_DEVICES="$GPU_PD" vllm serve "$MODEL" \
     --enforce-eager \
     --enable-request-id-headers \
     --max-num-seqs 128 \
-    --allowed-local-media-path ${GIT_ROOT}/tests/v1/ec_connector/integration \
     --ec-transfer-config '{
         "ec_connector": "ECSharedStorageConnector",
         "ec_role": "ec_consumer",
@@ -150,16 +148,16 @@ echo "All services are up!"
 ###############################################################################
 # Benchmark
 ###############################################################################
-echo "Running benchmark (stream)..."
-vllm bench serve \
-  --model               $MODEL \
-  --backend             openai-chat \
-  --endpoint            /v1/chat/completions \
-  --dataset-name        hf \
-  --dataset-path        lmarena-ai/VisionArena-Chat \
-  --seed                0 \
-  --num-prompts         $NUM_PROMPTS \
-  --port                $PROXY_PORT
+# echo "Running benchmark (stream)..."
+# vllm bench serve \
+#   --model               $MODEL \
+#   --backend             openai-chat \
+#   --endpoint            /v1/chat/completions \
+#   --dataset-name        hf \
+#   --dataset-path        lmarena-ai/VisionArena-Chat \
+#   --seed                0 \
+#   --num-prompts         $NUM_PROMPTS \
+#   --port                $PROXY_PORT
 
 PIDS+=($!)
 
@@ -182,5 +180,5 @@ curl http://127.0.0.1:${PROXY_PORT}/v1/chat/completions \
 
 
 # cleanup
-echo "cleanup..."
-cleanup
+# echo "cleanup..."
+# cleanup
