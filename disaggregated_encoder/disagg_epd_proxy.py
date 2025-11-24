@@ -185,6 +185,13 @@ async def fanout_encoder_primer(
                 "[%s] Dynamic sizing ENABLED: target_token_budget=%d (qps=%.2f)",
                 req_id, target_token_budget, qps_tracker.get_qps()
             )
+        else:
+            if app.state.token_budget:
+                encoder_req["target_token_budget"] = app.state.token_budget
+                logger.info(
+                    "[%s] Static sizing ENABLED: target_token_budget=%d",
+                    req_id, app.state.token_budget
+                )
         
         tasks.append(
             encode_session.post(
@@ -691,6 +698,7 @@ if __name__ == "__main__":
 
     app.state.ttft_slo = args.ttft_slo
     app.state.enable_dynamic_img_sizing = args.enable_dynamic_img_sizing
+    app.state.token_budget = args.token_budget
 
     logger.info("Proxy listening on %s:%s", args.host, args.port)
     logger.info("Encode servers: %s", app.state.e_urls)
@@ -699,7 +707,10 @@ if __name__ == "__main__":
     if app.state.enable_dynamic_img_sizing:
         logger.info("Dynamic image sizing is ENABLED")
     else:
-        logger.info("Dynamic image sizing is DISABLED")
+        if app.state.token_budget:
+            logger.info("Static image sizing is ENABLED")
+        else:
+            logger.info("Original image sizes are used.")
     logger.info("TTFT SLO set to %d ms", app.state.ttft_slo)
 
     uvicorn.run(
