@@ -143,7 +143,6 @@ python disagg_epd_proxy.py \
     --encode-servers-urls "http://localhost:$ENCODE_PORT" \
     --prefill-servers-urls "disable" \
     --decode-servers-urls "http://localhost:$PREFILL_DECODE_PORT" \
-    --enable-dynamic-img-sizing \
     --ttft-slo 2000 \
     >"${PROXY_LOG}" 2>&1 &
 
