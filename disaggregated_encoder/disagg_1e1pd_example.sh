@@ -87,7 +87,7 @@ mkdir -p $EC_SHARED_STORAGE_PATH
 # Encoder worker
 ###############################################################################
 CUDA_VISIBLE_DEVICES="$GPU_E" vllm serve "$MODEL" \
-    --gpu-memory-utilization 0.7 \
+    --gpu-memory-utilization 0.95 \
     --port "$ENCODE_PORT" \
     --enforce-eager \
     --enable-request-id-headers \
@@ -110,7 +110,7 @@ PIDS+=($!)
 # Prefill+Decode worker
 ###############################################################################
 CUDA_VISIBLE_DEVICES="$GPU_PD" vllm serve "$MODEL" \
-    --gpu-memory-utilization 0.7 \
+    --gpu-memory-utilization 0.95 \
     --port "$PREFILL_DECODE_PORT" \
     --enforce-eager \
     --enable-request-id-headers \
