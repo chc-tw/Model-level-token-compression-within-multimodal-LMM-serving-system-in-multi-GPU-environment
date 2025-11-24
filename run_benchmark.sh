@@ -81,7 +81,7 @@ genai-bench benchmark \
   --model-tokenizer "$MODEL_TOKENIZER" \
   --task image-text-to-text \
   --max-requests-per-run 500 \
-  --max-time-per-run 12 \
+  --max-time-per-run 7 \
   --dataset-config "$DATASET_CONFIG" \
   --experiment-base-dir ./experiments/sharegpt4o_image_caption \
   --experiment-folder-name "$TASK_NAME" \
