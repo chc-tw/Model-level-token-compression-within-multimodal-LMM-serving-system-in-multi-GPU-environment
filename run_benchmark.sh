@@ -5,6 +5,7 @@ API_MODEL_NAME="${1:-Qwen/Qwen2.5-VL-3B-Instruct}"
 MODEL_TOKENIZER="${2:-Qwen/Qwen2.5-VL-3B-Instruct}"
 DATASET_CONFIG="${3:-datasets/sharegpt4o_image_caption.jsonl}"
 SERVER_GPU_COUNT="${4:-1}"
+SEED="${5:-42}"
 
 # Help function
 usage() {
