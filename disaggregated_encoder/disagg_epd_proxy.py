@@ -106,7 +106,7 @@ decode_session: aiohttp.ClientSession | None = None
 ###############################################################################
 
 def compute_token_budget_from_ttft_slo(ttft_slo: float) -> int:
-    token_budget = (ttft_slo + 36.72) / 0.1197
+    token_budget = (ttft_slo - 15.64) / 0.1299
     
     # Round down to be conservative (don't exceed SLO)
     return int(token_budget)
