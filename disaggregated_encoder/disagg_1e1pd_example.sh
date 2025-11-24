@@ -12,7 +12,7 @@ mkdir -p $LOG_PATH
 
 ENCODE_PORT="${ENCODE_PORT:-19534}"
 PREFILL_DECODE_PORT="${PREFILL_DECODE_PORT:-19535}"
-PROXY_PORT="${PROXY_PORT:-10001}"
+PROXY_PORT="${PROXY_PORT:-10002}"
 
 GPU_E="${GPU_E:-0}"
 GPU_PD="${GPU_PD:-1}"
@@ -92,8 +92,9 @@ CUDA_VISIBLE_DEVICES="$GPU_E" vllm serve "$MODEL" \
     --enforce-eager \
     --enable-request-id-headers \
     --no-enable-prefix-caching \
-    --max-num-batched-tokens 114688 \
+    --max-num-batched-tokens 40000 \
     --max-num-seqs 128 \
+    --allowed-local-media-path "$GIT_ROOT/profile_images/" \
     --ec-transfer-config '{
         "ec_connector": "ECSharedStorageConnector",
         "ec_role": "ec_producer",
@@ -114,6 +115,7 @@ CUDA_VISIBLE_DEVICES="$GPU_PD" vllm serve "$MODEL" \
     --enforce-eager \
     --enable-request-id-headers \
     --max-num-seqs 128 \
+    --allowed-local-media-path "$GIT_ROOT/profile_images/" \
     --ec-transfer-config '{
         "ec_connector": "ECSharedStorageConnector",
         "ec_role": "ec_consumer",
@@ -132,12 +134,17 @@ wait_for_server $PREFILL_DECODE_PORT
 ###############################################################################
 # Proxy
 ###############################################################################
+
+# The TTFT SLO is in units of milliseconds.
+
 python disagg_epd_proxy.py \
     --host "0.0.0.0" \
     --port "$PROXY_PORT" \
     --encode-servers-urls "http://localhost:$ENCODE_PORT" \
     --prefill-servers-urls "disable" \
     --decode-servers-urls "http://localhost:$PREFILL_DECODE_PORT" \
+    --enable-dynamic-img-sizing \
+    --ttft-slo 2000 \
     >"${PROXY_LOG}" 2>&1 &
 
 PIDS+=($!)
@@ -164,21 +171,22 @@ PIDS+=($!)
 ###############################################################################
 # Single request with local image
 ###############################################################################
-echo "Running single request with local image (non-stream)..."
-curl http://127.0.0.1:${PROXY_PORT}/v1/chat/completions \
-    -H "Content-Type: application/json" \
-    -d '{
-    "model": "'${MODEL}'",
-    "messages": [
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": [
-        {"type": "image_url", "image_url": {"url": "file://'"${GIT_ROOT}"'/tests/v1/ec_connector/integration/hato.jpg"}},
-        {"type": "text", "text": "What is in this image?"}
-    ]}
-    ]
-    }'
+# echo "Running single request with local image (non-stream)..."
+# FILE="${GIT_ROOT}/profile_images/5120-5120.png"
 
+# curl http://0.0.0.0:${PROXY_PORT}/v1/chat/completions \
+#     -H "Content-Type: application/json" \
+#     -d '{
+#     "model": "'${MODEL}'",
+#     "messages": [
+#         {"role": "system", "content": "You are a helpful assistant."},
+#         {"role": "user", "content": [
+#             {"type": "image_url", "image_url": {"url": "file://'"${FILE}"'"}},
+#             {"type": "text", "text": "What is in this image?"}
+#         ]}
+#     ]
+# }'
 
-# cleanup
+# # cleanup
 # echo "cleanup..."
 # cleanup

@@ -32,6 +32,61 @@ import uvicorn
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
+#### QPS monitoring
+import time
+from collections import deque
+from threading import Lock
+
+# Add at module level (after imports)
+class QPSTracker:
+    def __init__(self, window_seconds=60):
+        self.window_seconds = window_seconds
+        self.requests = deque()
+        self.lock = Lock()
+    
+    def record_request(self):
+        """Record a new request timestamp"""
+        with self.lock:
+            now = time.time()
+            self.requests.append(now)
+            # Remove requests older than window
+            cutoff = now - self.window_seconds
+            while self.requests and self.requests[0] < cutoff:
+                self.requests.popleft()
+    
+    def get_qps(self):
+        """Get current queries per second"""
+        with self.lock:
+            now = time.time()
+            cutoff = now - self.window_seconds
+            # Remove old requests
+            while self.requests and self.requests[0] < cutoff:
+                self.requests.popleft()
+            
+            if not self.requests:
+                return 0.0
+            
+            # Calculate QPS over actual time window
+            time_span = now - self.requests[0] if self.requests else 1
+            return len(self.requests) / max(time_span, 1)
+    
+    def get_stats(self):
+        """Get detailed stats"""
+        with self.lock:
+            now = time.time()
+            cutoff = now - self.window_seconds
+            while self.requests and self.requests[0] < cutoff:
+                self.requests.popleft()
+            
+            return {
+                "qps": self.get_qps(),
+                "requests_last_60s": len(self.requests),
+                "window_seconds": self.window_seconds,
+            }
+
+# Initialize tracker
+qps_tracker = QPSTracker(window_seconds=3)
+
 ###############################################################################
 # FastAPI app & global state
 ###############################################################################
@@ -49,6 +104,12 @@ decode_session: aiohttp.ClientSession | None = None
 ###############################################################################
 # Utils
 ###############################################################################
+
+def compute_token_budget_from_ttft_slo(ttft_slo: float) -> int:
+    token_budget = (ttft_slo + 36.72) / 0.1197
+    
+    # Round down to be conservative (don't exceed SLO)
+    return int(token_budget)
 
 
 MM_TYPES = {"image_url", "audio_url", "input_audio"}
@@ -101,17 +162,30 @@ async def fanout_encoder_primer(
         # Derive a *child* request id:  <parent>:<index>:<random-short>
         child_req_id = f"{req_id}:{idx}:{uuid.uuid4().hex[:6]}"
         headers = {"x-request-id": child_req_id}
-
+        
+        # Build base encoder request
         encoder_req = {
-            # You *may* need to keep additional fields
             "model": orig_request.get("model"),
             "messages": [
                 {"role": "user", "content": [item]},
             ],
-            # Only need 1 token so the server actually runs the encoder path
             "max_tokens": 1,
             "stream": False,
         }
+        
+        # Conditionally add target_token_budget if dynamic sizing is enabled
+        if app.state.enable_dynamic_img_sizing:
+            target_token_budget = int(
+                compute_token_budget_from_ttft_slo(app.state.ttft_slo) 
+                / (app.state.ttft_slo / 1000 * (qps_tracker.get_qps() + 1e-5))
+            )
+            
+            encoder_req["target_token_budget"] = target_token_budget
+            logger.info(
+                "[%s] Dynamic sizing ENABLED: target_token_budget=%d (qps=%.2f)",
+                req_id, target_token_budget, qps_tracker.get_qps()
+            )
+        
         tasks.append(
             encode_session.post(
                 f"{target_url}/v1/chat/completions",
@@ -298,7 +372,6 @@ async def on_startup() -> None:
         prefill_session = aiohttp.ClientSession(timeout=timeout, connector=connector)
     decode_session = aiohttp.ClientSession(timeout=timeout, connector=connector)
 
-
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
     global encode_session, prefill_session, decode_session
@@ -379,6 +452,18 @@ async def forward_stream(
             status_code=500, detail=f"Proxy streaming error: {str(e)}"
         ) from e
 
+# ### QPS Logging
+# # Add background task for logging
+# async def log_qps_periodically():
+#     """Log QPS every 10 seconds"""
+#     while True:
+#         await asyncio.sleep(10)
+#         stats = qps_tracker.get_stats()
+#         logger.info(
+#             "[QPS_STATS] Current QPS: %.2f | Requests (last 60s): %d",
+#             stats["qps"],
+#             stats["requests_last_60s"]
+#         )
 
 ###############################################################################
 # Public routes
@@ -390,6 +475,8 @@ async def chat_completions(request: Request):
     try:
         req_data = await request.json()
         req_id = request.headers.get("x-request-id", str(uuid.uuid4()))
+
+        qps_tracker.record_request()
 
         e_urls = app.state.e_urls  # we want the full list for fan-out
         p_url = random.choice(app.state.p_urls) if app.state.p_urls else None
@@ -571,6 +658,17 @@ if __name__ == "__main__":
         required=True,
         help='Comma-separated decode URLs ("http://d1:8005,http://d2:8006")',
     )
+    parser.add_argument(
+        "--enable-dynamic-img-sizing",
+        action="store_true",
+        help="Enable dynamic image sizing wrt TTFT SLO",
+    )
+    parser.add_argument(
+        "--ttft-slo",
+        type=int,
+        default=2000,
+        help="TTFT SLO in milliseconds",
+    )
 
     args = parser.parse_args()
     app.state.e_urls = [
@@ -591,10 +689,18 @@ if __name__ == "__main__":
         ]
         logger.info("Disaggregated prefill phase is enabled. Running E + P + D...")
 
+    app.state.ttft_slo = args.ttft_slo
+    app.state.enable_dynamic_img_sizing = args.enable_dynamic_img_sizing
+
     logger.info("Proxy listening on %s:%s", args.host, args.port)
     logger.info("Encode servers: %s", app.state.e_urls)
     logger.info("Prefill instances %s", app.state.p_urls)
     logger.info("Decode servers: %s", app.state.d_urls)
+    if app.state.enable_dynamic_img_sizing:
+        logger.info("Dynamic image sizing is ENABLED")
+    else:
+        logger.info("Dynamic image sizing is DISABLED")
+    logger.info("TTFT SLO set to %d ms", app.state.ttft_slo)
 
     uvicorn.run(
         app,
