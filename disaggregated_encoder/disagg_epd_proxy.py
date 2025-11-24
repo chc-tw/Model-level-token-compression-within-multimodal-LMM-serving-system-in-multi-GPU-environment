@@ -671,6 +671,12 @@ if __name__ == "__main__":
         help="Enable dynamic image sizing wrt TTFT SLO",
     )
     parser.add_argument(
+        "--token_budget",
+        type=int,
+        default=None,
+        help="Enable static image sizing with specified token budget",
+    )
+    parser.add_argument(
         "--ttft-slo",
         type=int,
         default=2000,
@@ -708,7 +714,7 @@ if __name__ == "__main__":
         logger.info("Dynamic image sizing is ENABLED")
     else:
         if app.state.token_budget:
-            logger.info("Static image sizing is ENABLED")
+            logger.info(f"Static image sizing is ENABLED. Target token budget is {app.state.token_budget}.")
         else:
             logger.info("Original image sizes are used.")
     logger.info("TTFT SLO set to %d ms", app.state.ttft_slo)
