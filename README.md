@@ -19,7 +19,7 @@ export UV_CACHE_DIR=scratch/.cache
 After setting uv, you can clone the repository and install the dependencies:
 
 ```bash
-git clone --recurse-submodules https://github.com/chc-tw/research3.git
+git clone --recurse-submodules https://github.gatech.edu/cs8803smr-f25/research3.git
 ```
 ### vLLM Serving Virtual Environment
 To install and sync the dependencies, run:
