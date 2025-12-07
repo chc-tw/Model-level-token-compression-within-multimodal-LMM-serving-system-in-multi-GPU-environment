@@ -66,7 +66,8 @@ Next, we need to activate the vLLM serving virtual environment and start the vLL
 cd research3
 export PYTHONPATH="$(pwd)/vllm:$PYTHONPATH"
 source .venv/bin/activate
-GPU_E=0 GPU_PD=1 PROXY_PORT=10003 bash vllm/examples/online_serving/disaggregated_encoder_dynamic_sizing/disagg_1e1pd_example.sh
+cd vllm/examples/online_serving/disaggregated_encoder_dynamic_sizing
+GPU_E=0 GPU_PD=1 PROXY_PORT=10003 bash disagg_1e1pd_example.sh
 ```
 
 Next, because the vLLM server is on gpu node, we need to know the hostname of the server and forward the port to the cpu node. Run this command to get the hostname:
