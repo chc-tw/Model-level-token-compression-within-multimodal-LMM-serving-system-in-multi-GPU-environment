@@ -94,7 +94,6 @@ CUDA_VISIBLE_DEVICES="$GPU_E" vllm serve "$MODEL" \
     --no-enable-prefix-caching \
     --max-num-batched-tokens 40000 \
     --max-num-seqs 128 \
-    --allowed-local-media-path "$GIT_ROOT/profile_images/" \
     --ec-transfer-config '{
         "ec_connector": "ECSharedStorageConnector",
         "ec_role": "ec_producer",
@@ -115,7 +114,6 @@ CUDA_VISIBLE_DEVICES="$GPU_PD" vllm serve "$MODEL" \
     --enforce-eager \
     --enable-request-id-headers \
     --max-num-seqs 128 \
-    --allowed-local-media-path "$GIT_ROOT/profile_images/" \
     --ec-transfer-config '{
         "ec_connector": "ECSharedStorageConnector",
         "ec_role": "ec_consumer",
@@ -143,6 +141,7 @@ python disagg_epd_proxy.py \
     --encode-servers-urls "http://localhost:$ENCODE_PORT" \
     --prefill-servers-urls "disable" \
     --decode-servers-urls "http://localhost:$PREFILL_DECODE_PORT" \
+    --enable-dynamic-img-sizing \
     --ttft-slo 2000 \
     >"${PROXY_LOG}" 2>&1 &
 
