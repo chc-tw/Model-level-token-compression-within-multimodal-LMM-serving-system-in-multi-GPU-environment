@@ -1,19 +1,14 @@
 # research3
+Project title: Efficient Serving of Vision Language Models via Traffic-Aware Token Reduction
 
 ## Setup Instructions
 
-### Virtual Environment
+In this project, we need three virtual environments: one for the vLLM serving, one for similarity compute and one for genai-bench because the dependencies are conflicted between them.
 
-To better manage the dependencies, we use uv with pyproject.toml to install the dependencies. First install `uv` with pip:
-
-```bash
-pin install uv
-```
-
-If a `.venv` directory already exists (created by `uv`), activate it with the following command:
+To better manage the dependencies, we use uv with pyproject.toml to install the dependencies. First install `uv` via curl:
 
 ```bash
-source .venv/bin/activate
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 For ICE PACE, to avoid Disk Quota Excceeded error, move the default uv cache directory to inside the scratch directory:
@@ -21,22 +16,33 @@ For ICE PACE, to avoid Disk Quota Excceeded error, move the default uv cache dir
 ```bash
 export UV_CACHE_DIR=scratch/.cache
 ```
-
-To sync the dependencies, run:
+After setting uv, you can clone the repository and install the dependencies:
 
 ```bash
-VLLM_USE_PRECOMPILED=1 uv sync
+git clone --recurse-submodules https://github.com/chc-tw/research3.git
+```
+### vLLM Serving Virtual Environment
+To install and sync the dependencies, run:
+
+```bash
+cd research3
+MAX_JOBS=2 VLLM_USE_PRECOMPILED=1 uv sync
 ```
 
-To add a new dependency, run:
+### GenAI Bench Virtual Environment
+To install and sync the dependencies, run:
 
 ```bash
-uv add <package-name>
+cd research3/genai-bench
+uv sync
 ```
 
-To remove a dependency, run:
+### Similarity Compute Virtual Environment
+To install and sync the dependencies, run:
+
 ```bash
-uv remove <package-name>
+cd research3/similarity_compute
+uv sync
 ```
 
 ### vLLM
@@ -65,115 +71,77 @@ For example, set the environment variable under the repository path:
 export PYTHONPATH="$(pwd)/vllm:$PYTHONPATH"
 ``` 
 
-### Dataset
+## Run Instruction
+### Profiling
+<place_holder>
 
-Dataset used in the ModServe paper is the ShareGPT-4o dataset, which includes 50K images of varying resolutions and text prompts from GPT-4o.
+### Run the full experiment
+In this project, we need to run:
 
+1. the vLLM server on the gpu node
+2. the benchmark on the cpu node
+
+#### 1. Run the vLLM server on the gpu node
+
+First ask for a gpu node with memory > 32GB, 8 CPUs and 2 GPUs
 ```bash
-hf auth login
+srun --gres=gpu:H100:2 --mem 32768 --cpus-per-task=8 --time=4:00:00 -N 1 --pty /bin/zsh
+```
+Next, we need to activate the vLLM serving virtual environment and start the vLLM server
+```bash
+cd research3
+export PYTHONPATH="$(pwd)/vllm:$PYTHONPATH"
+source .venv/bin/activate
+GPU_E=0 GPU_PD=1 PROXY_PORT=10003 bash vllm/examples/online_serving/disaggregated_encoder_dynamic_sizing/disagg_1e1pd_example.sh
 ```
 
-### Models
-
-Models used in the ModServe paper are:
-- Llama 3.2 Vision 11B
-- Llama 3.2 Vision 90B
-- LLaVA-OneVision 7B
-- LLaVA-OneVision 72B
-- InternVL-2.5 26B
-- NVLM-D 72B
-
-## Run Disaggregated Encoder VLLM Server
-
-### Install NIXL
-
-Install NIXL for the KV Connector:
-
-```bash
-uv pip install nixl
-```
-
-### GPU Node
-
-For the disaggregated encoder experiments, obtain at least 2 H100 GPUs for example as follows:
-
-```bash
-salloc --nodes=2 --gres=gpu:H100:2 --ntasks-per-node=2 --time=2:00:00
-```
-
-### Default Benchmark
-
-Run the default experiment as follows:
-
-```bash
-cd disaggregated_encoder
-bash disagg_1e1p1d_example.sh # uses Qwen-2.5 3B
-```
-
-To run the benchmark for other models, do the following:
-
-```bash
-MODEL="Qwen/Qwen2.5-VL-7B-Instruct" bash disagg_1e1p1d_example.sh
-```
-
-## Run the GenAI Benchmarks
-
-We first need to ask for gpu machine
-
-```bash
-srun --gres=gpu:H100:1 --cpus-per-task=8 --time=9:00:00 -N 1 --pty /bin/bash
-```
-
-Next, because the vLLM server is on gpu node, we need to know the hostname of the server. Run this command to get the hostname:
+Next, because the vLLM server is on gpu node, we need to know the hostname of the server and forward the port to the cpu node. Run this command to get the hostname:
 
 ```bash
 hostname
 ```
 
-and start the vLLM server
+#### 2. Run the benchmark on the cpu node
+
+After getting the hostname, **on the cpu node**, we can forward the port on the gpu node to the cpu node:
+```bash
+ssh -N -f -L 10003:localhost:10003 $USER@<hostname of the gpu node>
+```
+
+Once we have the ssh tunnel, we can run the benchmark:
+```bash
+cd research3/genai-bench
+source .venv/bin/activate
+cd ..
+./run_benchmark.sh --task-name "demo"
+```
+The result will be saved in the `experiments/sharegpt4o_image_caption/demo` folder.
+The result will contain the following fields:
+- ttft
+- tpot
+- e2e_latency
+- output_latency
+- output_inference_speed
+- num_input_tokens
+- num_output_tokens
+- total_tokens
+- input_throughput
+- output_throughput
+
+To visualize all results for a experiment, run:
 
 ```bash
-vllm serve Qwen/Qwen2.5-VL-7B-Instruct
+cd research3
+python cdf_plot.py "experiments/sharegpt4o_image_caption/demo"
 ```
+The result figures will be saved in the same folder.
 
-Then, in another terminal, run:
+### Similarity Compute
+To compute the similarity between the predictions and the references on a specific result file, run:
 
 ```bash
-ssh -N -f -L 8888:localhost:8000 $USER@<hostname>
+cd research3/similarity_compute
+source .venv/bin/activate
+uv run --active python run.py --file_path "experiments/sharegpt4o_image_caption/demo/Trace with Peak QPS_7.json"
 ```
-
-Next, run the benchmark:
->Note because the dependencies are conflicted between vLLM and genai-bench, we need to run the benchmark in the different virtual environment.
->before running the benchmark, we need to create the genai-bench virtual environment:
->```bash
->cd genai-bench
->uv venv --python 3.12.5
->uv sync
->
->```
-> 
-```bash
-source genai-bench/.venv/bin/activate
-./run_benchmark.sh
-```
-
-### Dataset
-The ShareGPT-4o dataset is available on Hugging Face. The repo name is "chc-tw/ShareGPT-4o".
-To use this dataset in python, you can run:
-
-```python
-from datasets import load_dataset
-ds = load_dataset("chc-tw/ShareGPT-4o", "default")
-```
-
-The dataset is a DatasetDict object, you can access the train split by:
-
-```python
-train_ds = ds["train"]
-```
-
-The dataset is a Dataset object, you can access the first example by:
-
-```python
-print(train_ds[0])
-```
+It will print the average similarity in the console.
