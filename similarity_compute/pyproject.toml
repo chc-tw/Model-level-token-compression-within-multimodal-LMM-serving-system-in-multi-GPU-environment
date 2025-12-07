@@ -1,0 +1,14 @@
+[project]
+name = "similarity-compute"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.12.5"
+dependencies = [
+    "bleurt",
+    "evaluate>=0.4.6",
+    "sentence-transformers>=5.1.2",
+    "tf-keras>=2.20.1",
+]
+
+[tool.uv.sources]
+bleurt = { git = "https://github.com/google-research/bleurt.git" }
