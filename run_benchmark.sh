@@ -4,10 +4,11 @@
 API_MODEL_NAME="Qwen/Qwen2.5-VL-3B-Instruct"
 MODEL_TOKENIZER="Qwen/Qwen2.5-VL-3B-Instruct"
 DATASET_CONFIG="datasets/sharegpt4o_image_caption.jsonl"
-SERVER_GPU_COUNT="1"
+SERVER_GPU_COUNT="2"
 SEED="41"
 TASK_NAME="default_task"
 API_PORT="10003"
+TRACE_FILE="7"
 
 # Help function
 usage() {
@@ -20,6 +21,7 @@ usage() {
   echo "  SERVER_GPU_COUNT   - Number of GPUs (default: 1)"
   echo "  TASK_NAME          - Task name for experiment folder"
   echo "  API_PORT          - API port (default: 10003)"
+  echo "  TRACE_FILE         - Trace file ID (default: 7)"
   echo ""
   echo "Example:"
   echo "  $0 Qwen/Qwen2.5-VL-3B-Instruct Qwen/Qwen2.5-VL-3B-Instruct data/sharegpt4o_image_caption.jsonl 2"
@@ -58,6 +60,10 @@ while [[ $# -gt 0 ]]; do
       API_PORT="$2"
       shift 2
       ;;
+    --trace-file)
+      TRACE_FILE="$2"
+      shift 2
+      ;;
     -h|--help)
       usage
       ;;
@@ -76,6 +82,7 @@ echo "  SERVER_GPU_COUNT: $SERVER_GPU_COUNT"
 echo "  TASK_NAME: $TASK_NAME"
 echo "  SEED: $SEED"
 echo "  API_PORT: $API_PORT"
+echo "  TRACE_FILE: $TRACE_FILE"
 echo ""
 
 source ./genai-bench/.venv/bin/activate
@@ -96,5 +103,5 @@ genai-bench benchmark \
   --server-gpu-type "H100" \
   --server-gpu-count "$SERVER_GPU_COUNT" \
   --seed "$SEED" \
-  --trace-file 7 \
+  --trace-file "$TRACE_FILE" \
   --metrics-time-unit s

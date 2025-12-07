@@ -88,8 +88,14 @@ Once we have the ssh tunnel, we can run the benchmark:
 cd research3/genai-bench
 source .venv/bin/activate
 cd ..
-./run_benchmark.sh --task-name "demo"
+./run_benchmark.sh --task-name "demo" --trace-file 7 --api-port 10003 --seed 41
 ```
+The `run_benchmark.sh` accept the following arguments:
+- `--task-name`: the name of the task
+- `--trace-file`: the trace file ID (available trace files are 4,5,7 and 10, representing the peak qps of the trace)
+- `--api-port`: the port of vllm server
+- `--seed`: the random seed for data sampling
+
 The result will be saved in the `experiments/sharegpt4o_image_caption/demo` folder.
 The result will contain the following fields:
 - ttft
