@@ -123,6 +123,6 @@ To compute the similarity between the predictions and the references on a specif
 ```bash
 cd research3/similarity_compute
 source .venv/bin/activate
-uv run --active python run.py --file_path "experiments/sharegpt4o_image_caption/demo/Trace with Peak QPS_7.json"
+python run.py --file_path "../experiments/sharegpt4o_image_caption/demo/Trace with Peak QPS_7.json"
 ```
 It will print the average similarity in the console.
