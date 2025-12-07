@@ -45,32 +45,6 @@ cd research3/similarity_compute
 uv sync
 ```
 
-### vLLM
->Note: you don't need to use this section. just do the above step. This section is for reference only.
-
-> To install vLLM, we need to set environment variable MAX_JOBS=2 to avoid OOM.
-
-If modifying only the Python code, build and install vLLM without compilation:
-
-```bash
-cd vllm
-MAX_JOBS=2 VLLM_USE_PRECOMPILED=1 uv pip install --editable .
-```
-
-If modifying the C++ or CUDA code, the entire vLLM needs to be built from source: 
-
-```bash
-cd vllm
-uv pip install -e .
-```
-
-Here, we fix vLLM version to [v0.11.0](https://github.com/vllm-project/vllm/releases/tag/v0.11.0). After building vLLM, set `PYTHONPATH` to enable vLLM local built module selection.
-For example, set the environment variable under the repository path:
-
-```bash
-export PYTHONPATH="$(pwd)/vllm:$PYTHONPATH"
-``` 
-
 ## Run Instruction
 ### Profiling
 <place_holder>
