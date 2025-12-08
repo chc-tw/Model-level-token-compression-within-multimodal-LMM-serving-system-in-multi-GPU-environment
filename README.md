@@ -138,11 +138,11 @@ cd ..
 ```
 The `run_benchmark.sh` accept the following arguments:
 - `--task-name`: the name of the task
-- `--trace-file`: the trace file ID (available trace files are 4, 5, 7 and 10, representing the peak qps of the trace)
+- `--trace-file`: the trace file ID (available trace files are 4, 5, 7 and 10, representing the peak QPS of the trace)
 - `--api-port`: the port of vllm server
 - `--seed`: the random seed for data sampling. Fix this to ensure consistency among all benchmarks.
 
-**Note:** It is recommended to cold start the vLLM server on the GPU node (i.e., kill all vLLM process and re-launch) to ensure the outcome consistency. Since there is a few cache implemented in vLLM, doing multiple benchmarking on a single vLLM server launch will trigger those caching mechanism and produce performance inconsistency.
+**Note:** It is recommended to cold start the vLLM server on the GPU node (i.e., kill all vLLM process and re-launch) to ensure the outcome consistency. Since there is a few cache implemented in vLLM, doing multiple benchmarking on a single vLLM server launch will trigger those caching mechanism and influence reproducibility.
 
 The result will be saved in the `experiments/sharegpt4o_image_caption/demo` folder.
 The result will contain the following fields:
@@ -163,10 +163,10 @@ To visualize all results for an experiment, run:
 cd research3
 python cdf_plot.py "experiments/sharegpt4o_image_caption/demo"
 ```
-The result TTFT CDF figures will be saved in the same folder.
+The result TTFT CDF figures will be saved in the same path.
 
 ### Similarity Compute
-To compute the similarity between the predictions and the references on a specific result file, run:
+To compute the similarity between the predictions and the references on a specific experiment result file, run:
 
 ```bash
 cd research3/similarity_compute
