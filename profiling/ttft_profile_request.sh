@@ -2,12 +2,11 @@
 
 # --- Configuration ---
 # Uses default values if environment variables are not set
-PROXY_PORT="${PROXY_PORT:-10002}"
+PROXY_PORT="${PROXY_PORT:-10003}"
 MODEL="${MODEL:-Qwen/Qwen2.5-VL-3B-Instruct}"
 # Assuming git is installed and the file path is correct relative to the git root
 # For a simpler test, you might hardcode the file path: FILE="/path/to/your/image.png"
-GIT_ROOT="$(pwd)" # Handle case where not in a git repo
-FILE="${GIT_ROOT}/profile_images/2700-2700.png"
+FILE="${FILE:-${PWD}/profile_images/1536-1536.png}"
 
 # --- Request Payload (JSON) ---
 # Use printf to create the complex JSON payload correctly, handling nested quotes
@@ -24,7 +23,7 @@ PAYLOAD=$(printf '{
     ]
 }' "${MODEL}" "${FILE}")
 
-# --- TTFT Calculation Logic ---
+# --- Latency Calculation Logic ---
 
 # 1. Check if the file exists before running the benchmark
 if [ ! -f "$FILE" ]; then
@@ -34,7 +33,7 @@ fi
 
 API_URL="http://0.0.0.0:${PROXY_PORT}/v1/chat/completions"
 
-echo "Benchmarking TTFT for Multimodal Request..."
+echo "Benchmarking latency for Multimodal Request..."
 echo "Model: ${MODEL}"
 echo "Endpoint: ${API_URL}"
 echo "Image File: ${FILE}"
@@ -58,11 +57,11 @@ curl -sN --no-buffer -X POST "$API_URL" \
             # Using system call for best precision if available, otherwise falling back
             "date +%s.%N" | getline CURRENT_TIME
             
-            # Calculate TTFT: Current Time - Start Time
-            TTFT = CURRENT_TIME - start_time
+            # Calculate latency: Current Time - Start Time
+            latency = CURRENT_TIME - start_time
             
             # Print the result
-            printf "TTFT: %.4f seconds\n", TTFT
+            printf "Latency: %.4f seconds\n", latency
             
             # Print the first data chunk for verification
             print $0
