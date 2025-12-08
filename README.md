@@ -105,7 +105,8 @@ Wait for the vLLM server launch to complete. Upon completion, you will see messa
 remove previous ec cache folder
 make ec cache folder
 Running single request with local image (non-stream)...
-{"id":"chatcmpl-c8346702-56fd-41d3-a5c0-b3c1cb1d11ad","object":"chat.completion","created":1765140092,"model":"Qwen/Qwen2.5-VL-3B-Instruct","choices":[{"index":0,"message":{"role":"assistant","content":"The image depicts an urban scene with several elements:\n\n1. **Foreground**: There are three pigeons on the ground, one of which is prominently in the foreground, facing away from the camera.\n2. **Background**: Two individuals dressed in formal attire (suits and ties) are walking along a sidewalk. The background also includes a brick wall and some trees with autumn leaves.\n3. **Sidewalk**: The sidewalk is made of wooden planks and has scattered leaves on it.\n4. **Buildings**: There are buildings visible in the background, including a multi-story building with balconies.\n\nThe overall setting appears to be a quiet, possibly early morning or late afternoon, urban environment.","refusal":null,"annotations":null,"audio":null,"function_call":null,"tool_calls":[],"reasoning":null,"reasoning_content":null},"logprobs":null,"finish_reason":"stop","stop_reason":null,"token_ids":null}],"service_tier":null,"system_fingerprint":null,"usage":{"prompt_tokens":8057,"total_tokens":8198,"completion_tokens":141,"prompt_tokens_details":null},"prompt_logprobs":null,"prompt_token_ids":null,"kv_transfer_params":null}All services are up!
+{"id":"chatcmpl-c8346702-56fd-41d3-a5c0-b3c1cb1d11ad","object":"chat.completion","created":1765140092,"model":"Qwen/Qwen2.5-VL-3B-Instruct","choices":[{"index":0,"message":{"role":"assistant","content":"The image depicts an urban scene with several elements:\n\n1. **Foreground**: There are three pigeons on the ground, one of which is prominently in the foreground, facing away from the camera.\n2. **Background**: Two individuals dressed in formal attire (suits and ties) are walking along a sidewalk. The background also includes a brick wall and some trees with autumn leaves.\n3. **Sidewalk**: The sidewalk is made of wooden planks and has scattered leaves on it.\n4. **Buildings**: There are buildings visible in the background, including a multi-story building with balconies.\n\nThe overall setting appears to be a quiet, possibly early morning or late afternoon, urban environment.","refusal":null,"annotations":null,"audio":null,"function_call":null,"tool_calls":[],"reasoning":null,"reasoning_content":null},"logprobs":null,"finish_reason":"stop","stop_reason":null,"token_ids":null}],"service_tier":null,"system_fingerprint":null,"usage":{"prompt_tokens":8057,"total_tokens":8198,"completion_tokens":141,"prompt_tokens_details":null},"prompt_logprobs":null,"prompt_token_ids":null,"kv_transfer_params":null}
+All services are up!
 ```
 
 Seeing **All services are up!** indicates we are all set in this stage.
@@ -137,7 +138,7 @@ cd ..
 ```
 The `run_benchmark.sh` accept the following arguments:
 - `--task-name`: the name of the task
-- `--trace-file`: the trace file ID (available trace files are 4,5,7 and 10, representing the peak qps of the trace)
+- `--trace-file`: the trace file ID (available trace files are 4, 5, 7 and 10, representing the peak qps of the trace)
 - `--api-port`: the port of vllm server
 - `--seed`: the random seed for data sampling. Fix this to ensure consistency among all benchmarks.
 
