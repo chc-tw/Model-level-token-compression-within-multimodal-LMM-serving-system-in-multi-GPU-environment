@@ -1,7 +1,6 @@
-# Research3
-Project Title: Efficient Serving of Vision Language Models via Traffic-Aware Token Reduction
+# Title: Efficient Serving of Vision Language Models via Traffic-Aware Token Reduction
 
-Member: Chung-En Ho, Hao-Cheng Chang, Min Lu
+Team Members: Chung-En Ho, Hao-Cheng Chang, Min Lu
 
 ## Setup Instructions
 
