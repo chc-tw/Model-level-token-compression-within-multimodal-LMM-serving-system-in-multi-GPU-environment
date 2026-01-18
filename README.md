@@ -1,4 +1,4 @@
-Model-level token compression within multimodal LMM serving system in multi-GPU environment
+# Model-level token compression within multimodal LMM serving system in multi-GPU environment
 
 Team Members: Chung-En Ho, Hao-Cheng Chang, Min Lu
 
