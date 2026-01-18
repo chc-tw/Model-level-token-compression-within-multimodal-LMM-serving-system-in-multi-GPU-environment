@@ -1,4 +1,4 @@
-# Title: Efficient Serving of Vision Language Models via Traffic-Aware Token Reduction
+# Title: Model-level token compression within multimodal LMM serving system in multi-GPU environment
 
 Team Members: Chung-En Ho, Hao-Cheng Chang, Min Lu
 
