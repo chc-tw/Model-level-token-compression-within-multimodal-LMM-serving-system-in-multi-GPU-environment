@@ -4,3 +4,4 @@ research3.egg-info/
 genai_bench.log
 disaggregated_encoder/logs/
 profiling/logs/
+.venv/
